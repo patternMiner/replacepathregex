@@ -1,0 +1,16 @@
+displayName: Domain Robots
+type: middleware
+iconPath: .assets/icon.png
+
+import: github.com/Noahnut/domain-robots
+
+summary: '[Domain Robots] Serve robots.txt and sitemap.xml from S3'
+
+testData:
+  S3Bucket: "test-bucket"
+  S3Region: "us-east-1"
+  S3Endpoint: "s3.us-east-1.amazonaws.com"
+  S3PrefixPath: "assets"
+  RobotsTxtPath: "robots.txt"
+  SitemapPath: "sitemap.xml"
+  Protocol: "https"
