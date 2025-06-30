@@ -1,10 +1,10 @@
 # Domain Robots Traefik Plugin
 
-A Traefik plugin that dynamically routes `robots.txt` and `sitemap.xml` requests to S3 or CloudFront based on the requesting domain.
+A Traefik plugin that dynamically routes `robots.txt` and `sitemap.xml` requests to S3  based on the requesting domain.
 
 ## Overview
 
-This plugin intercepts requests for `robots.txt` and `sitemap.xml` files and redirects them to the appropriate S3 bucket or CloudFront distribution. The target URL is constructed using the requesting domain name, allowing you to serve different robots.txt and sitemap files for different domains from a single S3 bucket.
+This plugin intercepts requests for `robots.txt` and `sitemap.xml` files and redirects them to the appropriate S3 bucket  distribution. The target URL is constructed using the requesting domain name, allowing you to serve different robots.txt and sitemap files for different domains from a single S3 bucket.
 
 ## Features
 
