@@ -1,110 +1,110 @@
-# Domain Robots Traefik Plugin
-
-A Traefik plugin that dynamically routes `robots.txt` and `sitemap.xml` requests to S3  based on the requesting domain.
+# replacePathRegex  
+Traefik Middleware Plugin – Rewrite Request Path with Regular Expressions
+Target is to solve the original replace Path Regex plugin, Can't use the full URL as the Regex, this plugin can use the full URL as the Regex to make more flexible.
 
 ## Overview
+`replaceRathRegex` is a lightweight middleware plugin for **Traefik v3** that rewrites an incoming request's URL path using a configurable regular-expression pattern and replacement string (back-references `$1`, `$2`, … supported).  
+Typical use cases include:
 
-This plugin intercepts requests for `robots.txt` and `sitemap.xml` files and redirects them to the appropriate S3 bucket  distribution. The target URL is constructed using the requesting domain name, allowing you to serve different robots.txt and sitemap files for different domains from a single S3 bucket.
+* Mapping per-domain `robots.txt` / `sitemap.xml` requests to a shared S3 bucket  
+* Refactoring legacy routes, e.g. `/old/path/...` ➜ `/new/path/...`
+
+The original path is preserved in the `X-Replaced-Path` header for debugging purposes.
 
 ## Features
+* **Flexible regex & replacement** – any Go `regexp` syntax, back-references `$n` expanded automatically  
+* **No external dependencies** – built with Go standard library only  
+* **Easy debugging** – original path stored in a custom response/request header
 
-- **Dynamic Domain Routing**: Automatically routes requests based on the requesting domain
-- **S3 Integration**: Supports direct S3 bucket access with configurable regions
-- **Custom Paths**: Configurable robots.txt and sitemap.xml paths
-- **Prefix Support**: Optional S3 prefix path for better organization
-- **Port Handling**: Automatically strips port numbers from domain names
+---
 
 ## Installation
 
-### Prerequisites
-
-- Traefik v2.10 or later
-- Go 1.23.2 or later (for building from source)
-
-### Building from Source
-
-```bash
-git clone https://github.com/Noahnut/domain-robots.git
-cd domain-robots
-go build -buildmode=plugin -o domain-robots.so domain_robots.go
-```
-
-### Docker Build
-
-```bash
-docker build -t domain-robots-plugin .
-```
-
-## Configuration
-
-### Plugin Configuration
-
+### 1 – Enable the plugin in `traefik.yml`
 ```yaml
-# traefik.yml
 experimental:
   plugins:
-    domainrobots:
-      modName: github.com/Noahnut/domain-robots
-      version: v0.0.0
+    replacepathregex:
+      modName: github.com/Noahnut/replacePathRegex
+      version: v0.0.0          # replace with desired tag
 ```
 
-### Middleware Configuration
-
+### 2 – Declare middlewares (dynamic configuration)
 ```yaml
-# dynamic/domain-robots.yml
 http:
   middlewares:
-    domain-robots-s3:
+    robots-rewrite:
       plugin:
-        domainrobots:
-          # Required: S3 bucket name
-          s3Bucket: "your-static-bucket"
-          
-          # Required: AWS region
-          s3Region: "us-east-1"
-          
-          # Optional: Custom S3 endpoint (for MinIO, etc.)
-          s3Endpoint: ""
-          
-          # Optional: S3 prefix path for organization
-          s3PrefixPath: "assets"
-          
-          # Optional: Custom robots.txt path, robotsTxtPath and sitemapPath pick one 
-          robotsTxtPath: "/robots.txt"
-          
-          # Optional: Custom sitemap.xml path
-          sitemapPath: "/sitemap.xml"
-          
-          # Optional: Protocol (default: https)
-          protocol: "https"
+        replacepathregex:
+          regex: "^https://([^/]+)/robots\\.txt$"
+          replace: "/robots_txt/$1/robots.txt"
+
+    sitemap-rewrite:
+      plugin:
+        replacepathregex:
+          regex: "^https://([^/]+)/([^/]+\\.xml)$"
+          replace: "/sitemap/$1/$2"
 ```
 
-### Router Configuration
-
+### 3 – Attach middleware to routers
 ```yaml
 http:
   routers:
-    # Robots.txt routing
     robots-router:
-      rule: "HostRegexp(`{domain:.+}`) && PathPrefix(`/robots.txt`)"
+      rule: "HostRegexp(`{host:.+}`) && Path(`/robots.txt`)"
       middlewares:
-        - domain-robots-s3
-      service: backend-service
+        - robots-rewrite
+      service: s3-backend
       tls: {}
-    
-    # Sitemap.xml routing
+
     sitemap-router:
-      rule: "HostRegexp(`{domain:.+}`) && PathPrefix(`/sitemap.xml`)"
+      rule: "HostRegexp(`{host:.+}`) && PathRegexp(`/.*\\.xml`)"
       middlewares:
-        - domain-robots-s3
-      service: backend-service
-      tls: {}
-    
-    # Specific domain routing
-    example-com-robots:
-      rule: "Host(`example.com`) && PathPrefix(`/robots.txt`)"
-      middlewares:
-        - domain-robots-s3
-      service: backend-service
+        - sitemap-rewrite
+      service: s3-backend
       tls: {}
 ```
+
+---
+
+## Examples
+
+| Incoming URL                                   | Regex / Replace                                  | Resulting Path                                   |
+|------------------------------------------------|--------------------------------------------------|--------------------------------------------------|
+| `https://xxxx.test.com/robots.txt`          | `^https://([^/]+)/robots\.txt$` / `/robots_txt/$1/robots.txt` | `/robots_txt/xxxx.test.com/robots.txt` |
+| `https://xxxx.test.com/xx.xml`              | `^https://([^/]+)/([^/]+\.xml)$` / `/sitemap/$1/$2`           | `/sitemap/xxxx.test.com/xx.xml`       |
+| `https://xxxx.test.com/robots.txt`         | same as robots rule                              | `/robots_txt/xxxx.test.com/robots.txt`|
+| `https://xxxx.test.com/xx.xml`             | same as sitemap rule                             | `/sitemap/xxxx.test.com/xx.xml`      |
+
+---
+
+## Configuration Parameters
+
+| Field      | Type   | Description                                                  |
+|------------|--------|--------------------------------------------------------------|
+| `regex`    | string | Regular expression applied to `req.URL.String()`             |
+| `replace`  | string | Replacement template; supports `$1 … $n` back-references     |
+
+Notes:
+
+* If a back-reference has no match, it is replaced by an empty string.  
+* After substitution, any leftover `$n` tokens are stripped automatically.  
+* The original untouched path is stored in `X-Replaced-Path` header.
+
+---
+
+## Development & Tests
+
+```bash
+git clone https://github.com/Noahnut/replace-path-regex.git
+cd replace-path-regex
+go mod tidy        # download dependencies
+go test ./...      # run unit tests
+```
+
+The test suite covers various rewrite scenarios and can be extended as needed.
+
+---
+
+## License
+MIT © 2024 Noahnut
