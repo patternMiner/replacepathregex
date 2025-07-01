@@ -5,3 +5,7 @@ iconPath: .assets/icon.png
 import: github.com/Noahnut/replacePathRegex
 
 summary: '[Replace Path Regex] Customize path regex'
+
+testData:
+  regex: "^https://([^/]+)/robots\\.txt$"
+  replacement: "/robots_txt/$1/robots.txt"
