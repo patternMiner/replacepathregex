@@ -1,4 +1,4 @@
-module github.com/Noahnut/replace-path-regex
+module github.com/Noahnut/replacePathRegex
 
 go 1.23.2
 
