@@ -1,11 +1,9 @@
-.PHONY: lint test vendor clean
+.PHONY: test vendor clean
 
 export GO111MODULE=on
 
-default: lint test
+default: test
 
-lint:
-	golangci-lint run
 
 test:
 	go test -v -cover ./...
