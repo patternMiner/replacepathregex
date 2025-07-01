@@ -15,7 +15,7 @@ const (
 
 type Config struct {
 	Regex string `json:"regex,omitempty"`
-	Replacement string `json:"replace,omitempty"`
+	Replacement string `json:"replacement,omitempty"`
 }
 
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
