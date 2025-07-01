@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	replacepathregex "github.com/Noahnut/replacePathRegex"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestReplacePathRegex(t *testing.T) {
@@ -88,7 +87,9 @@ func TestReplacePathRegex(t *testing.T) {
 
 			handler.ServeHTTP(recorder, req)
 
-			assert.Equal(t, test.expected, req.URL.Path)
+			if req.URL.Path != test.expected {
+				t.Errorf("expected %s, got %s", test.expected, req.URL.Path)
+			}
 		})
 	}
 }
