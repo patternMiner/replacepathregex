@@ -7,7 +7,7 @@ import (
 
 	"testing"
 
-	replacepathregex "github.com/Noahnut/replace-path-regex"
+	replacepathregex "github.com/Noahnut/replacePathRegex"
 	"github.com/stretchr/testify/assert"
 )
 
