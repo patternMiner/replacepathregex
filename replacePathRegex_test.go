@@ -1,4 +1,4 @@
-package replacepathregex_test
+package replacePathRegex_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 	"testing"
 
-	replacepathregex "github.com/Noahnut/replacePathRegex"
+	replacePathRegex "github.com/Noahnut/replacePathRegex"
 )
 
 func TestReplacePathRegex(t *testing.T) {
@@ -67,7 +67,7 @@ func TestReplacePathRegex(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-			handler, err := replacepathregex.New(context.Background(), next, &replacepathregex.Config{
+			handler, err := replacePathRegex.New(context.Background(), next, &replacePathRegex.Config{
 				Regex: test.regex,
 				Replacement: test.replacement,
 			}, "replacePathRegex")

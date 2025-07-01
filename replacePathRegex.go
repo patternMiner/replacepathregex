@@ -1,4 +1,4 @@
-package replacepathregex
+package replacePathRegex
 
 import (
 	"context"
@@ -17,6 +17,11 @@ type Config struct {
 	Regex string `json:"regex,omitempty"`
 	Replacement string `json:"replacement,omitempty"`
 }
+
+func CreateConfig() *Config {
+	return &Config{}
+}
+
 
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
 	
