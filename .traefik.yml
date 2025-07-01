@@ -1,6 +1,5 @@
 displayName: Replace Path Regex
 type: middleware
-iconPath: .assets/icon.png
 
 import: github.com/Noahnut/replacePathRegex
 
