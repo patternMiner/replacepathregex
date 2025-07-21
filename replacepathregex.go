@@ -2,7 +2,9 @@ package replacepathregex
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -22,6 +24,8 @@ func CreateConfig() *Config {
 }
 
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	slog.SetDefault(logger)
 
 	regex, err := regexp.Compile(strings.TrimSpace(config.Regex))
 	if err != nil {
@@ -42,8 +46,9 @@ type ReplacePathRegexHandler struct {
 }
 
 func (h *ReplacePathRegexHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-
 	backReferencesRegex := regexp.MustCompile(`\$\d+`)
+
+	slog.Debug("Request Path: " + req.URL.Path)
 
 	if h.regex != nil && len(h.replacement) > 0 {
 		req.Header.Add(ReplacedPathHeader, req.URL.Path)
