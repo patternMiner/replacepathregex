@@ -48,10 +48,9 @@ type ReplacePathRegexHandler struct {
 func (h *ReplacePathRegexHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	backReferencesRegex := regexp.MustCompile(`\$\d+`)
 
-	slog.Debug("Request Path: " + req.URL.Path)
-
 	if h.regex != nil && len(h.replacement) > 0 {
 		req.Header.Add(ReplacedPathHeader, req.URL.Path)
+		slog.Debug("Request Path before: " + req.URL.Path)
 
 		if matches := h.regex.FindStringSubmatch(req.URL.String()); len(matches) > 0 {
 			matches = matches[1:]
@@ -63,6 +62,8 @@ func (h *ReplacePathRegexHandler) ServeHTTP(w http.ResponseWriter, req *http.Req
 			}
 
 			req.URL.Path = backReferencesRegex.ReplaceAllString(replacement, "")
+			slog.Debug("Request Path after: " + req.URL.Path)
+
 		}
 	}
 
