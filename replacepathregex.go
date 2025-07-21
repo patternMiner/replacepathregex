@@ -68,6 +68,6 @@ func (h *ReplacePathRegexHandler) ServeHTTP(w http.ResponseWriter, req *http.Req
 			slog.Debug("No matches found in url: " + req.URL.String() + " for regex: " + h.regex.String())
 		}
 	}
-
+	slog.Debug("Request URL final: " + req.URL.String())
 	h.next.ServeHTTP(w, req)
 }
