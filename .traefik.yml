@@ -1,10 +1,10 @@
 displayName: Replace Path Regex
 type: middleware
 
-import: github.com/Noahnut/replacePathRegex
+import: github.com/patternMiner/replacepathregex
 
 summary: '[Replace Path Regex] Customize path regex'
 
 testData:
-  regex: "^https://([^/]+)/robots\\.txt$"
-  replacement: "/robots_txt/$1/robots.txt"
+  regex: "^([^/]+)/admin/(.*)$"
+  replacement: "/$2"
